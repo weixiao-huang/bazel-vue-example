@@ -1,0 +1,24 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@npm//@vue/cli-service:index.bzl", "vue_cli_service")
+
+write_file(
+    name = "write_chdir_script",
+    out = "chdir.js",
+    content = ["process.chdir(__dirname)"],
+)
+
+vue_cli_service(
+    name = "build",
+    args = [
+        "build",
+        "--dest=$(@D)",
+        "--node_options=--require=./$(execpath chdir.js)"
+    ],
+    data = [
+        "chdir.js",
+    ] + glob(
+        ["**"],
+        exclude = ["node_modules/**"],
+    ),
+    outs = ["dist"],
+)
