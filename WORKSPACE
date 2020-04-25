@@ -1,8 +1,9 @@
-# gazelle:repository_macro build/repos.bzl%go_repositories
 workspace(
     name = "bazel_nodejs",
     managed_directories = {"@npm": ["portal/node_modules"]},
 )
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "build_bazel_rules_nodejs",
@@ -13,6 +14,19 @@ http_archive(
     ],
 )
 
+GOPROXY = "https://goproxy.cn"
+
+# copy from bazelbuild/rules_go 0.20.1 by using goproxy
+http_archive(
+    name = "bazel_skylib",
+    # 1.0.2, latest as of 2019-10-09
+    urls = ["{}/github.com/bazelbuild/bazel-skylib/@v/v0.0.0-20191009164321-e59b620b392a.zip".format(GOPROXY)],
+    sha256 = "5c0268703657f508891311f51e8abe61bcc5bf5322ff435202935c780338919e",
+    strip_prefix = "github.com/bazelbuild/bazel-skylib@v0.0.0-20191009164321-e59b620b392a",
+    type = "zip",
+)
+
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 
 node_repositories(
     package_json = ["//portal:package.json"],
